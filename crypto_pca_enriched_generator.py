@@ -150,20 +150,21 @@ for sym in PC_df["symbol"].unique():
 df_fox = pd.concat(enriched)
 
 # Build final schema
-cols = ["symbol","asof","close"]
+cols = ["symbol","date","close"]
 for i in range(6):
     cols += [f"PC{i+1}_Level", f"PC{i+1}_Velocity", f"PC{i+1}_Acceleration"]
 
 df_fox = df_fox[cols].dropna()
 # Handle timezone - convert if already aware, localize if naive
-asof_dt = pd.to_datetime(df_fox["asof"])
-if asof_dt.dt.tz is None:
-    df_fox["asof"] = asof_dt.dt.tz_localize("UTC")
+date_dt = pd.to_datetime(df_fox["date"])
+if date_dt.dt.tz is None:
+    df_fox["asof"] = date_dt.dt.tz_localize("UTC")
 else:
-    df_fox["asof"] = asof_dt.dt.tz_convert("UTC")
+    df_fox["asof"] = date_dt.dt.tz_convert("UTC")
+df_fox = df_fox.drop(columns=["date"])
 df_fox = df_fox.sort_values(["symbol","asof"]).reset_index(drop=True)
 
-years = (df_fox.asof.max() - df_fox.asof.min()).total_seconds() / (365.25*24*3600)
+years = (df_fox["asof"].max() - df_fox["asof"].min()).total_seconds() / (365.25*24*3600)
 print(f"\n✅ Final: {len(df_fox):,} rows, {df_fox.symbol.nunique()} symbols, {years:.1f} years")
 
 # === SAVE ===
