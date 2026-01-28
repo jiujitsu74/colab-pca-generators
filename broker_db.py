@@ -503,10 +503,12 @@ class BrokerDB:
         }
 
         # Use INSERT OR REPLACE to ensure account exists
+        # Ensure created_at is never None
+        created_at = account_data.get('created_at') or now
         cursor.execute("""
             INSERT OR REPLACE INTO accounts (sid, initial_cash, created_at, status, meta)
             VALUES (?, ?, ?, 'active', ?)
-        """, (sid, initial_cash, account_data.get('created_at', now), json.dumps(meta) if meta else None))
+        """, (sid, initial_cash, created_at, json.dumps(meta) if meta else None))
 
         # Create/update balance - use INSERT OR REPLACE to handle existing
         cursor.execute("""
