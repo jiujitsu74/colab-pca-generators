@@ -1,0 +1,36 @@
+# Patch for /opt/shadow-trader/fox/regime_aware_backtest.py
+# Adds regime contract mapping from BRAIN labels to FOX labels
+
+# 1. Add this after the logging setup (around line 20):
+
+# Regime contract mapping - BRAIN labels to FOX classifier labels
+BRAIN_TO_FOX_REGIME = {
+    "MOMENTUM_STRONG": "TREND",
+    "MEANREV_CHOPPY": "CONSOLIDATION",
+    "RISK_OFF_BEARISH": "CRASH",
+    "CRISIS": "CRASH",
+    "USD_STRENGTH": "TREND",
+    "FX_CONSOLIDATION": "CONSOLIDATION",
+    "FX_CRISIS": "HIGH_VOL",
+    "CONSOLIDATION_LOW_VOL": "LOW_VOL",
+    "HIGH_VOL_CRISIS": "HIGH_VOL",
+    "BULL_TREND": "TREND",
+    "COMMODITY_BULL": "TREND",
+    "COMMODITY_BEAR": "CRASH",
+    "COMMODITY_RANGE": "CONSOLIDATION",
+    "NEUTRAL": "CONSOLIDATION",
+    "UNKNOWN": "CONSOLIDATION",
+}
+
+def brain_to_fox(brain_label: str) -> str:
+    """Map BRAIN spawn regime label to FOX classifier label."""
+    return BRAIN_TO_FOX_REGIME.get(brain_label, brain_label)
+
+
+# 2. Replace line 250:
+#    OLD: in_regime_mask = daily['regime'].loc[strategy_returns.index] == target_regime
+#    NEW:
+    # Map BRAIN regime to FOX classifier label
+    fox_target = brain_to_fox(target_regime)
+    logger.info(f"  [REGIME] Mapping BRAIN:{target_regime} -> FOX:{fox_target}")
+    in_regime_mask = daily['regime'].loc[strategy_returns.index] == fox_target
