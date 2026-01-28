@@ -502,12 +502,13 @@ class BrokerDB:
                         'initial_capital', 'account_total', 'account_equity')
         }
 
+        # Use INSERT OR REPLACE to ensure account exists
         cursor.execute("""
-            INSERT OR IGNORE INTO accounts (sid, initial_cash, created_at, status, meta)
+            INSERT OR REPLACE INTO accounts (sid, initial_cash, created_at, status, meta)
             VALUES (?, ?, ?, 'active', ?)
         """, (sid, initial_cash, account_data.get('created_at', now), json.dumps(meta) if meta else None))
 
-        # Create/update balance
+        # Create/update balance - use INSERT OR REPLACE to handle existing
         cursor.execute("""
             INSERT OR REPLACE INTO balances
             (sid, cash, equity, pnl_realized, sod_equity, sod_date, fees_today,
