@@ -296,6 +296,8 @@ def migrate(dry_run: bool = False, no_backup: bool = False) -> Tuple[int, int, i
 
 
 def main():
+    global DB_PATH  # Declare at start of function
+
     parser = argparse.ArgumentParser(
         description='Migrate JSON snapshots to SQLite database'
     )
@@ -312,14 +314,13 @@ def main():
     parser.add_argument(
         '--db',
         type=Path,
-        default=DB_PATH,
+        default=None,
         help=f'Database path (default: {DB_PATH})'
     )
     args = parser.parse_args()
 
     # Update module-level DB_PATH if custom path provided
-    if args.db != DB_PATH:
-        global DB_PATH
+    if args.db is not None:
         DB_PATH = args.db
 
     accounts, positions, errors = migrate(
