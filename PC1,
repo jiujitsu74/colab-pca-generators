@@ -1,0 +1,36 @@
+=== Fix generate_regime_signals to handle _Velocity and _Acceleration ===
+Could not find exact code block to replace
+Attempting line-by-line fix...
+
+=== Verify fix ===
+def generate_regime_signals(df: pd.DataFrame, config: Dict) -> pd.Series:
+    """Generate signals from config using PC columns"""
+    score_config = config.get('score', {})
+    long_weights = score_config.get('long', [])
+    short_weights = score_config.get('short', [])
+    direction = config.get('direction', 'long_only')
+    
+    # Build score from PC columns
+    if long_weights:
+        score_long = sum(
+            df[w['col'].replace('_Level', '')] * w.get('w', w.get('weight', 1.0)) 
+            for w in long_weights if w['col'].replace('_Level', '') in df.columns
+        )
+    else:
+        score_long = df['PC1']
+    
+    if short_weights:
+        score_short = sum(
+            df[w['col'].replace('_Level', '')] * w.get('w', w.get('weight', 1.0))
+            for w in short_weights if w['col'].replace('_Level', '') in df.columns
+        )
+    else:
+        score_short = -df['PC1']
+    
+    signal_cfg = config.get('signal', {})
+    alpha_cfg = signal_cfg.get('alpha', {})
+    alpha_type = alpha_cfg.get('type', 'momentum')
+    lookback = alpha_cfg.get('lookback_bars', 20)
+    threshold = alpha_cfg.get('entry_z', 0.5)
+    
+    score = score_short if direction == 'short_only' else score_long
