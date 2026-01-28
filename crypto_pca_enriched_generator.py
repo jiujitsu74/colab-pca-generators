@@ -169,7 +169,7 @@ print(f"\n✅ Final: {len(df_fox):,} rows, {df_fox.symbol.nunique()} symbols, {y
 
 # === SAVE ===
 df_fox.to_parquet("crypto_pca_enriched.parquet", index=False)
-df_fox[df_fox.asof == df_fox.asof.max()].to_parquet("crypto_pca_latest.parquet", index=False)
+df_fox[df_fox["asof"] == df_fox["asof"].max()].to_parquet("crypto_pca_latest.parquet", index=False)
 print("💾 Saved parquet files")
 
 # === UPLOAD TO S3 ===
