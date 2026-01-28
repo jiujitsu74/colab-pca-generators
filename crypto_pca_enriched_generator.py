@@ -139,7 +139,7 @@ print("\n⚡ Computing Level/Velocity/Acceleration...")
 
 enriched = []
 for sym in PC_df["symbol"].unique():
-    df_s = PC_df[PC_df["symbol"]==sym].sort_values("asof").copy()
+    df_s = PC_df[PC_df["symbol"]==sym].sort_values("date").copy()
     for i in range(6):
         pc = f"PC{i+1}"
         df_s[f"{pc}_Level"] = df_s[pc].ewm(span=20).mean()
