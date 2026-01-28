@@ -1,0 +1,1 @@
+{"tag": "checkpoint-20260128-144336", "file": "/Users/davidsmarr/alpha-darwin/colab-pca-generators/broker_db.py", "timestamp": "2026-01-28T20:43:36Z", "type": "post-edit", "branch": "main", "diff_summary": " .claude/checkpoints/task-1769632872.json |   1 +  broker_db.py                             | 657 +++++++++++++++++++++++++++++++  2 files changed, 658 insertions(+) "}
