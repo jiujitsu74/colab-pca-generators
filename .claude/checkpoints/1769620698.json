@@ -1,0 +1,1 @@
+{"tag": "checkpoint-20260128-111817", "file": "/Users/davidsmarr/alpha-darwin/colab-pca-generators/crypto_pca_enriched_generator.py", "timestamp": "2026-01-28T17:18:18Z", "type": "post-edit", "branch": "main", "diff_summary": " .claude/checkpoints/task-1769620681.json | 1 +  crypto_pca_enriched_generator.py         | 7 ++++++-  2 files changed, 7 insertions(+), 1 deletion(-) "}
