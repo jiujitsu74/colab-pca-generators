@@ -317,8 +317,10 @@ def main():
     )
     args = parser.parse_args()
 
-    global DB_PATH
-    DB_PATH = args.db
+    # Update module-level DB_PATH if custom path provided
+    if args.db != DB_PATH:
+        global DB_PATH
+        DB_PATH = args.db
 
     accounts, positions, errors = migrate(
         dry_run=args.dry_run,
