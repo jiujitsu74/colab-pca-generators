@@ -132,7 +132,7 @@ print(f"Explained variance: {pca.explained_variance_ratio_.sum():.1%}")
 PC_df = pd.DataFrame(PCs, index=Z.index, columns=[f"PC{i+1}" for i in range(6)])
 PC_df["symbol"] = Z["Ticker"].str.replace("-USD","USD")
 PC_df["close"] = Z["Close"].values
-PC_df["asof"] = PC_df.index
+PC_df["date"] = PC_df.index
 
 # === LEVEL/VELOCITY/ACCELERATION ===
 print("\n⚡ Computing Level/Velocity/Acceleration...")
