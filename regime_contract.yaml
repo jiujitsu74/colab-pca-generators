@@ -1,0 +1,142 @@
+# ============================================================================
+# REGIME CONTRACT
+# ============================================================================
+# Single source of truth for regime label mappings across all modules.
+#
+# Modules:
+#   - Crystal Ball (CB): Global market regime from macro signals
+#   - BRAIN Spawn Policy: Per-asset regime labels that drive archetype selection
+#   - FOX Classifier: Historical regime classification for backtest filtering
+#   - OWL: Display labels for dashboard
+#
+# Contract Rules:
+#   1. All CB/BRAIN labels MUST map to a FOX label
+#   2. FOX labels are the canonical internal representation
+#   3. OWL labels are for display only (can be pretty)
+#   4. New labels require updating this contract
+#
+# Updated: 2026-01-28
+# ============================================================================
+
+version: "1.0"
+
+# FOX Classifier canonical labels (source of truth for backtest)
+fox_labels:
+  - TREND
+  - CONSOLIDATION
+  - HIGH_VOL
+  - LOW_VOL
+  - CRASH
+
+# Crystal Ball global regime labels
+crystal_ball_labels:
+  - RISK-ON
+  - RISK-OFF
+  - CONSOLIDATION
+  - CRASH_FADE
+  - UNKNOWN
+
+# BRAIN spawn policy labels (per-asset, from regime_spawn_policy.yaml)
+brain_labels:
+  crypto:
+    - MOMENTUM_STRONG
+    - MEANREV_CHOPPY
+    - RISK_OFF_BEARISH
+    - NEUTRAL
+    - CRISIS
+  forex:
+    - USD_STRENGTH
+    - FX_CONSOLIDATION
+    - FX_CRISIS
+    - NEUTRAL
+  equities:
+    - CONSOLIDATION_LOW_VOL
+    - HIGH_VOL_CRISIS
+    - BULL_TREND
+    - NEUTRAL
+  commodities:
+    - COMMODITY_BULL
+    - COMMODITY_BEAR
+    - COMMODITY_RANGE
+    - NEUTRAL
+
+# ============================================================================
+# MAPPING: BRAIN -> FOX
+# ============================================================================
+# For each BRAIN spawn label, map to the FOX classifier label that represents
+# the same market condition. This is used by FOX regime-aware backtest to
+# filter historical data to periods matching the strategy's target regime.
+#
+# Mapping derived from semantic alignment + historical confusion matrix.
+# ============================================================================
+
+brain_to_fox:
+  # Crypto
+  MOMENTUM_STRONG: TREND
+  MEANREV_CHOPPY: CONSOLIDATION
+  RISK_OFF_BEARISH: CRASH
+  CRISIS: CRASH
+
+  # Forex
+  USD_STRENGTH: TREND
+  FX_CONSOLIDATION: CONSOLIDATION
+  FX_CRISIS: HIGH_VOL
+
+  # Equities
+  CONSOLIDATION_LOW_VOL: LOW_VOL
+  HIGH_VOL_CRISIS: HIGH_VOL
+  BULL_TREND: TREND
+
+  # Commodities
+  COMMODITY_BULL: TREND
+  COMMODITY_BEAR: CRASH
+  COMMODITY_RANGE: CONSOLIDATION
+
+  # Universal
+  NEUTRAL: CONSOLIDATION
+  UNKNOWN: CONSOLIDATION
+
+# ============================================================================
+# MAPPING: Crystal Ball Global -> FOX
+# ============================================================================
+# Crystal Ball global regime mapped to FOX labels
+# ============================================================================
+
+cb_global_to_fox:
+  RISK-ON: TREND
+  RISK-OFF: HIGH_VOL
+  CONSOLIDATION: CONSOLIDATION
+  CRASH_FADE: CRASH
+  UNKNOWN: CONSOLIDATION
+
+# ============================================================================
+# MAPPING: FOX -> OWL Display
+# ============================================================================
+# Pretty labels for dashboard display
+# ============================================================================
+
+fox_to_owl_display:
+  TREND: "Trending"
+  CONSOLIDATION: "Consolidation"
+  HIGH_VOL: "High Volatility"
+  LOW_VOL: "Low Volatility"
+  CRASH: "Crisis/Crash"
+
+# ============================================================================
+# CONTRACT VALIDATION THRESHOLDS
+# ============================================================================
+# Used by regime_contract_test.py to validate mapping quality
+# ============================================================================
+
+validation:
+  # Minimum mapping confidence (max_agreement / total_days)
+  min_mapping_confidence: 0.4
+
+  # Alert if unmapped labels appear
+  alert_on_unmapped: true
+
+  # Days of history to use for confusion matrix
+  confusion_matrix_days: 365
+
+  # ELEPHANT event type for drift alerts
+  drift_event_type: "regime_contract_drift"
